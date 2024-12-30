@@ -1,6 +1,9 @@
 from datetime import date, timedelta
 from typing import List
 
+from enums.workout import Workout
+from enums.terrain import Terrain
+
 class Runner:
     def __init__(self, name: str, birthday: date = None, age: int = None):
         self.name = name
@@ -19,9 +22,16 @@ class Runner:
         today = date.today()
         return today.year - self.birthday.year - ((today.month, today.day) < (self.birthday.month, self.birthday.day))
 
-    # Add a new day's worth of training load
-    def add_training_load(self, load: float):
-        self.daily_training_load.append(load)
+    # Add a new day's worth of training load (assume one activity per day for now)
+    def add_training_load(self, activity = None):
+        if activity is None:
+            # Rest day
+            self.daily_training_load.append(0)
+            return
+        
+        rpe = self.estimate_rpe(activity)
+        training_load = activity.duration * rpe
+        self.daily_training_load.append(int(training_load))
 
     @property
     def acute_training_load(self):
@@ -44,3 +54,34 @@ class Runner:
 
     def set_next_race(self, race_id: int):
         self.next_race = race_id
+
+    def estimate_rpe(self, activity):
+        # Compute a base RPE based on workout type and terrain type
+        workout_adjustment = {
+            Workout.RECOVERY: 2.0,
+            Workout.TEMPO: 3.0,
+            Workout.INTERVAL: 4.0,
+            Workout.RACE: 5.0
+        }
+        workout_factor = workout_adjustment.get(activity.workout_type, 1.0)
+
+        terrain_adjustment = {
+            Terrain.FLAT: 1.0,
+            Terrain.ROLLING: 1.2,
+            Terrain.MOUNTAINOUS: 1.5
+        }
+        terrain_factor = terrain_adjustment.get(activity.course_type, 1.0)
+
+        base_rpe = terrain_factor * workout_factor
+
+        # Rested runners get a lower RPE, tired runners get a higher one
+        rest_adjustment = self.training_load_ratio - 1.0  # Adjust linearly based on fitness factor
+        rest_adjustment = max(-1, min(rest_adjustment, 1))  # Clamp between -1 and 1
+
+        # Experienced runners get a lower RPE, beginners get a higher one
+        load_adjustment = -(self.chronic_training_load - 650) / 100  # Adjust linearly based on chronic load
+        load_adjustment = max(-2, min(load_adjustment, 2))  # Clamp between -2 and 2
+
+        adjusted_rpe = base_rpe + rest_adjustment + load_adjustment
+        return max(1, min(adjusted_rpe, 10)) # Clamp between 1 and 10
+
