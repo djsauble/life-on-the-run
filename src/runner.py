@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import random
 from typing import List
 
 from enums.workout import Workout
@@ -22,17 +23,6 @@ class Runner:
         today = date.today()
         return today.year - self.birthday.year - ((today.month, today.day) < (self.birthday.month, self.birthday.day))
 
-    # Add a new day's worth of training load (assume one activity per day for now)
-    def add_training_load(self, activity = None):
-        if activity is None:
-            # Rest day
-            self.daily_training_load.append(0)
-            return
-        
-        rpe = self.estimate_rpe(activity)
-        training_load = activity.duration * rpe
-        self.daily_training_load.append(int(training_load))
-
     @property
     def acute_training_load(self):
         return self._weighted_sum(self.daily_training_load[-7:], 7)
@@ -47,13 +37,38 @@ class Runner:
             return float('inf')
         return self.acute_training_load / self.chronic_training_load
 
+    # Add a new day's worth of training load (assume one activity per day for now)
+    def add_training_load(self, activity = None):
+        if activity is None:
+            # Rest day
+            self.daily_training_load.append(0)
+            return
+
+        rpe = self.estimate_rpe(activity)
+        training_load = activity.duration * rpe
+        self.daily_training_load.append(int(training_load))
+
+    # Did an injury occur today?
+    def check_for_injury(self):
+
+        # Annualized injury rate of 1 per year when training_load_ratio is 1
+        base_injury_rate = 1 / 365
+
+        # Adjust injury rate based on training load ratio
+        adjusted_injury_rate = base_injury_rate * self.training_load_ratio
+
+        # Determine if injury occurs
+        if random.random() < adjusted_injury_rate:
+            return True
+        return False
+
+    def set_next_race(self, race_id: int):
+        self.next_race = race_id
+
     def _weighted_sum(self, loads: List[float], days: int):
         weights = [1/(i+1) for i in range(days)]
         weighted_loads = [load * weight for load, weight in zip(loads, weights)]
         return sum(weighted_loads)
-
-    def set_next_race(self, race_id: int):
-        self.next_race = race_id
 
     def estimate_rpe(self, activity):
         # Compute a base RPE based on workout type and terrain type

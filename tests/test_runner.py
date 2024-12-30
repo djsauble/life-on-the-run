@@ -75,6 +75,23 @@ def test_set_next_race():
     runner.set_next_race(123)
     assert runner.next_race == 123
 
+def test_check_for_injury():
+    # Set a high training load ratio
+    runner = Runner(name="John")
+    activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28)]
+    for activity in activities:
+        runner.add_training_load(activity)
+    injuries = [runner.check_for_injury() for _ in range(365)].count(True)
+    assert injuries > 0  # Should be at least one injury in a year
+
+    # Set a low training load ratio
+    runner = Runner(name="John")
+    activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28, 0, -1)]
+    for activity in activities:
+        runner.add_training_load(activity)
+    injuries = [runner.check_for_injury() for _ in range(365)].count(True)
+    assert injuries == 0  # Should be zero injuries in a year
+
 def generate_mock_activities():
     activities = []
     for i in range(28):
