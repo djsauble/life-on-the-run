@@ -39,15 +39,15 @@ def test_add_training_load():
             expected_loads.append(int(activity.duration * runner.estimate_rpe(activity)))
 
         # Use the add_training_load method to add the activity
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     
-    assert runner.daily_training_load == expected_loads
+    assert runner.daily_training_load[:-1] == expected_loads
 
 def test_acute_training_load():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     acute_training_load = 0
     for i, load in enumerate(runner.daily_training_load[-7:]):
         acute_training_load += load * (1 / (i+1))
@@ -57,7 +57,7 @@ def test_chronic_training_load():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     chronic_training_load = 0
     for i, load in enumerate(runner.daily_training_load[-28:]):
         chronic_training_load += load * (1 / (i+1))
@@ -67,7 +67,7 @@ def test_training_load_ratio():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     assert math.isclose(runner.training_load_ratio, runner.acute_training_load / runner.chronic_training_load)
 
 def test_race_calendar_initialization():
@@ -80,7 +80,7 @@ def test_check_for_injury():
     runner = Runner(name="John")
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28)]
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     injuries = [runner.check_for_injury() for _ in range(365)].count(True)
     assert injuries > 0  # Should be at least one injury in a year
 
@@ -88,9 +88,17 @@ def test_check_for_injury():
     runner = Runner(name="John")
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28, 0, -1)]
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     injuries = [runner.check_for_injury() for _ in range(365)].count(True)
     assert injuries == 0  # Should be zero injuries in a year
+
+def test_sleep_method():
+    runner = Runner(name="John")
+    initial_date = runner.today
+    assert len(runner.daily_training_load) == 1
+    runner.sleep()
+    assert runner.today == initial_date + timedelta(days=1)
+    assert len(runner.daily_training_load) == 2
 
 def generate_mock_activities():
     activities = []

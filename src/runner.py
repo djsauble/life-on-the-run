@@ -17,7 +17,7 @@ class Runner:
         else:
             # Default is 21 years old
             self.birthday = self.today - timedelta(days=21*365)
-        self.daily_training_load = []
+        self.daily_training_load = [0]
         self.race_calendar = RaceCalendar(self.today.year)
         self.next_race = None
 
@@ -39,17 +39,20 @@ class Runner:
         if self.chronic_training_load == 0:
             return float('inf')
         return self.acute_training_load / self.chronic_training_load
+    
+    # Advance to the next day
+    def sleep(self):
+        self.today += timedelta(days=1)
+        self.daily_training_load.append(0)
+        return self
 
-    # Add a new day's worth of training load (assume one activity per day for now)
+    # Add training load to the current day
     def add_training_load(self, activity = None):
-        if activity is None:
-            # Rest day
-            self.daily_training_load.append(0)
-            return
-
-        rpe = self.estimate_rpe(activity)
-        training_load = activity.duration * rpe
-        self.daily_training_load.append(int(training_load))
+        if activity:
+            rpe = self.estimate_rpe(activity)
+            training_load = activity.duration * rpe
+            self.daily_training_load[-1] += int(training_load)
+        return self
 
     # Did an injury occur today?
     def check_for_injury(self):
