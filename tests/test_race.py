@@ -20,7 +20,6 @@ def test_race_initialization(race):
     assert race.prizes == [200, 100, 50]
     assert race.course_type == Terrain.ROLLING
     assert race.competition > 0
-    assert not race.registered
 
 def test_place_runner_winner(race):
     runner = MockRunner(chronic_training_load=2000)

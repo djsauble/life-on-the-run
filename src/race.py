@@ -20,7 +20,6 @@ class Race:
         self.prizes = prizes
         params = self.COMPETITION_PARAMS[competition_level]
         self.competition = random.gauss(params['mean'], params['stddev'])
-        self.registered = False
 
     def place_runner(self, runner):
         # Calculate runner's performance score

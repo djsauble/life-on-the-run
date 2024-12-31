@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from race import Race
 from enums.terrain import Terrain
 from enums.competition import Competition
@@ -6,7 +6,7 @@ from enums.competition import Competition
 class RaceCalendar:
     def __init__(self, year):
         self.year = year
-        self.races = self._populate_races()
+        self.races = {race: False for race in self._populate_races()}
 
     def _populate_races(self):
         races = [
@@ -40,3 +40,24 @@ class RaceCalendar:
             Race(21.1, datetime(self.year, 12, 31), "New Year's Eve Half Marathon", 50, [300, 150, 75], Competition.TRAINED, Terrain.FLAT),
         ]
         return races
+
+    def register(self, race):
+        if race in self.races:
+            self.races[race] = True
+        else:
+            raise ValueError("Race not found in calendar")
+
+    def unregister(self, race):
+        if race in self.races:
+            self.races[race] = False
+        else:
+            raise ValueError("Race not found in calendar")
+
+    # Assumes that the race calendar is sorted by date
+    def next_race(self, today):
+        for race, registered in self.races.items():
+            if race.date > today and registered == True:
+                days_until_next_race = (race.date - today).days
+                return race, days_until_next_race
+
+        raise ValueError("You have no more races this year")
