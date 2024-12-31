@@ -70,10 +70,10 @@ def test_training_load_ratio():
         runner.add_training_load(activity)
     assert math.isclose(runner.training_load_ratio, runner.acute_training_load / runner.chronic_training_load)
 
-def test_set_next_race():
-    runner = Runner(name="John")
-    runner.set_next_race(123)
-    assert runner.next_race == 123
+def test_race_calendar_initialization():
+    runner = Runner(name="John", birthday=date(2000, 1, 1))
+    assert runner.race_calendar.year == date.today().year
+    assert len(runner.race_calendar.races) > 0
 
 def test_check_for_injury():
     # Set a high training load ratio
