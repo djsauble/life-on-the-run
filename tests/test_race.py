@@ -31,7 +31,7 @@ def test_place_runner_winner(race):
 def test_place_runner_top_percentile(race):
     runner = MockRunner(chronic_training_load=1000)
     percentile, placement = race.place_runner(runner)
-    assert "You finished in the top" in placement
+    assert "You finished in the bottom" in placement
     assert 0 < percentile < 100
 
 def test_predict_odds_of_winning(race):
