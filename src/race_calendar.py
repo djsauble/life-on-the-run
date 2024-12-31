@@ -61,3 +61,8 @@ class RaceCalendar:
                 return race, days_until_next_race
 
         raise ValueError("You have no more races this year")
+
+    def reset(self, today):
+        if today.year != self.year:
+            self.year = today.year
+            self.races = {race: False for race in self._populate_races()}

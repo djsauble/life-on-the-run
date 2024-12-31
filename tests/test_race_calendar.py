@@ -66,3 +66,12 @@ def test_no_more_races(race_calendar):
     race_calendar.register(race)
     with pytest.raises(ValueError, match="You have no more races this year"):
         race_calendar.next_race(today)
+
+def test_reset_new_year(race_calendar):
+    today = datetime(2024, 1, 1)
+    race_calendar.register(list(race_calendar.races.keys())[0])
+    race_calendar.reset(today)
+    assert race_calendar.year == 2024
+    assert len(race_calendar.races) > 0
+    assert all(registered == False for registered in race_calendar.races.values())
+    assert all(race.date.year == 2024 for race in race_calendar.races.keys())
