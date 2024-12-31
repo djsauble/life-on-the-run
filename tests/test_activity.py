@@ -1,5 +1,5 @@
 import pytest
-from src.activity import Activity
+from activity import Activity
 from enums.workout import Workout
 from enums.terrain import Terrain
 
