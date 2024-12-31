@@ -50,7 +50,7 @@ def test_acute_training_load():
         runner.add_training_load(activity).sleep()
     acute_training_load = 0
     for i, load in enumerate(runner.daily_training_load[-7:]):
-        acute_training_load += load * (1 / (i+1))
+        acute_training_load += load * (1 / (7 - i))
     assert math.isclose(runner.acute_training_load, acute_training_load)
 
 def test_chronic_training_load():
@@ -60,7 +60,7 @@ def test_chronic_training_load():
         runner.add_training_load(activity).sleep()
     chronic_training_load = 0
     for i, load in enumerate(runner.daily_training_load[-28:]):
-        chronic_training_load += load * (1 / (i+1))
+        chronic_training_load += load * (1 / (28 - i))
     assert math.isclose(runner.chronic_training_load, chronic_training_load)
 
 def test_training_load_ratio():
@@ -116,3 +116,12 @@ def generate_mock_activities():
 def test_training_load_ratio_no_history():
     runner = Runner(name="John")
     assert runner.training_load_ratio == 1
+
+def test_weighted_sum():
+    runner = Runner(name="John")
+    decay = [7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]
+    growth = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
+    days = len(decay)
+    decay_weighted_sum = runner._weighted_sum(decay, days)
+    growth_weighted_sum = runner._weighted_sum(growth, days)
+    assert growth_weighted_sum > decay_weighted_sum  # Ensure the last elements are weighted more heavily than the first elements

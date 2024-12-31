@@ -75,7 +75,7 @@ class Runner:
         return False
 
     def _weighted_sum(self, loads: List[float], days: int):
-        weights = [1/(i+1) for i in range(days)]
+        weights = [1/(i+1) for i in range(days - 1, -1, -1)]
         weighted_loads = [load * weight for load, weight in zip(loads, weights)]
         return sum(weighted_loads)
 
