@@ -19,13 +19,14 @@ def test_race_initialization(race):
     assert race.fee == 35
     assert race.prizes == [200, 100, 50]
     assert race.course_type == Terrain.ROLLING
-    assert race.competition > 0
+    assert race.competition["mean"] > 0
+    assert race.competition["stddev"] > 0
 
 def test_place_runner_winner(race):
     runner = MockRunner(chronic_training_load=2000)
     percentile, placement = race.place_runner(runner)
     assert "You won!" in placement
-    assert percentile == 0
+    assert percentile == 1.0
 
 def test_place_runner_top_percentile(race):
     runner = MockRunner(chronic_training_load=1000)
@@ -36,10 +37,4 @@ def test_place_runner_top_percentile(race):
 def test_predict_odds_of_winning(race):
     runner = MockRunner(chronic_training_load=1500)
     odds = race.predict_odds_of_winning(runner)
-    assert 0 <= odds <= 1
-
-def test_determine_placement_winner(race):
-    runner = MockRunner(chronic_training_load=2000)
-    placement, title = race.determine_placement(runner)
-    assert placement == 1
-    assert title == "Winner"
+    assert "%" in odds

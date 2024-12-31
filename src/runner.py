@@ -9,6 +9,7 @@ from race_calendar import RaceCalendar  # Assuming RaceCalendar is defined in ra
 class Runner:
     def __init__(self, name: str, birthday: date = None, age: int = None):
         self.name = name
+        self.start = date.today()
         self.today = date.today()
         if birthday:
             self.birthday = birthday
@@ -19,7 +20,6 @@ class Runner:
             self.birthday = self.today - timedelta(days=21*365)
         self.daily_training_load = [0]
         self.race_calendar = RaceCalendar(self.today.year)
-        self.next_race = None
 
     @property
     def age(self):
@@ -37,7 +37,7 @@ class Runner:
     @property
     def training_load_ratio(self):
         if self.chronic_training_load == 0:
-            return float('inf')
+            return 1 # If we don't have enough data to compute the ratio, assume a base value of 1
         return self.acute_training_load / self.chronic_training_load
     
     # Advance to the next day

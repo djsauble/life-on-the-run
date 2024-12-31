@@ -112,3 +112,7 @@ def generate_mock_activities():
         course_type = [Terrain.FLAT, Terrain.ROLLING, Terrain.MOUNTAINOUS][i % 3]
         activities.append(MockActivity(duration, workout_type, course_type))
     return activities
+
+def test_training_load_ratio_no_history():
+    runner = Runner(name="John")
+    assert runner.training_load_ratio == 1
