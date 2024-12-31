@@ -28,11 +28,11 @@ class Race:
         # Determine placement based on performance score and competition level
         if performance_score > self.competition:
             percentile = 0
-            placement = "Winner"
+            placement = f"You won! Enjoy your ${self.prizes[0]} of prize money!"
         else:
             # Calculate the percentile placement
             percentile = (1 - (performance_score / self.competition)) * 100
-            placement = f"Top {int(100 - percentile)}%"
+            placement = f"You finished in the top {int(100 - percentile)}%"
 
         return percentile, placement
 

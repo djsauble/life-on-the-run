@@ -44,6 +44,12 @@ class Runner:
     def sleep(self):
         self.today += timedelta(days=1)
         self.daily_training_load.append(0)
+
+        # Check if it's January 1 of a new year
+        if self.today.month == 1 and self.today.day == 1:
+            self.race_calendar.reset(self.today)
+            print(f"Happy New Year! It's time to register for races for {self.today.year}.")
+
         return self
 
     # Add training load to the current day
