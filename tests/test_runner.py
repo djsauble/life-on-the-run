@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from datetime import date, timedelta
 from enums.terrain import Terrain
 from enums.workout import Workout
@@ -39,48 +40,56 @@ def test_add_training_load():
             expected_loads.append(int(activity.duration * runner.estimate_rpe(activity)))
 
         # Use the add_training_load method to add the activity
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     
-    assert runner.daily_training_load == expected_loads
+    assert runner.daily_training_load[:-1] == expected_loads
 
 def test_acute_training_load():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
-    acute_training_load = 0
-    for i, load in enumerate(runner.daily_training_load[-7:]):
-        acute_training_load += load * (1 / (i+1))
-    assert math.isclose(runner.acute_training_load, acute_training_load)
+        runner.add_training_load(activity).sleep()
+
+    weights = np.exp(-0.2 * np.arange(7))
+    normalized_weights = weights / weights.sum()
+    normalized_weights = np.flip(normalized_weights)
+    last_seven_days = np.array(runner.daily_training_load[-7:])
+    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+
+    assert math.isclose(runner.acute_training_load, weighted_load)
 
 def test_chronic_training_load():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
-    chronic_training_load = 0
-    for i, load in enumerate(runner.daily_training_load[-28:]):
-        chronic_training_load += load * (1 / (i+1))
-    assert math.isclose(runner.chronic_training_load, chronic_training_load)
+        runner.add_training_load(activity).sleep()
+
+    weights = np.exp(-0.2 * np.arange(28))
+    normalized_weights = weights / weights.sum()
+    normalized_weights = np.flip(normalized_weights)
+    last_seven_days = np.array(runner.daily_training_load[-28:])
+    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+
+    assert math.isclose(runner.chronic_training_load, weighted_load)
 
 def test_training_load_ratio():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     assert math.isclose(runner.training_load_ratio, runner.acute_training_load / runner.chronic_training_load)
 
-def test_set_next_race():
-    runner = Runner(name="John")
-    runner.set_next_race(123)
-    assert runner.next_race == 123
+def test_race_calendar_initialization():
+    runner = Runner(name="John", birthday=date(2000, 1, 1))
+    assert runner.race_calendar.year == date.today().year
+    assert len(runner.race_calendar.races) > 0
 
 def test_check_for_injury():
     # Set a high training load ratio
     runner = Runner(name="John")
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28)]
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     injuries = [runner.check_for_injury() for _ in range(365)].count(True)
     assert injuries > 0  # Should be at least one injury in a year
 
@@ -88,9 +97,17 @@ def test_check_for_injury():
     runner = Runner(name="John")
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28, 0, -1)]
     for activity in activities:
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
     injuries = [runner.check_for_injury() for _ in range(365)].count(True)
     assert injuries == 0  # Should be zero injuries in a year
+
+def test_sleep_method():
+    runner = Runner(name="John")
+    initial_date = runner.today
+    assert len(runner.daily_training_load) == 1
+    runner.sleep()
+    assert runner.today == initial_date + timedelta(days=1)
+    assert len(runner.daily_training_load) == 2
 
 def generate_mock_activities():
     activities = []
@@ -104,3 +121,16 @@ def generate_mock_activities():
         course_type = [Terrain.FLAT, Terrain.ROLLING, Terrain.MOUNTAINOUS][i % 3]
         activities.append(MockActivity(duration, workout_type, course_type))
     return activities
+
+def test_training_load_ratio_no_history():
+    runner = Runner(name="John")
+    assert runner.training_load_ratio == 1
+
+def test_weighted_sum():
+    runner = Runner(name="John")
+    decay = [7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]
+    growth = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
+    days = len(decay)
+    decay_weighted_sum = runner._weighted_sum(decay, days)
+    growth_weighted_sum = runner._weighted_sum(growth, days)
+    assert growth_weighted_sum > decay_weighted_sum  # Ensure the last elements are weighted more heavily than the first elements

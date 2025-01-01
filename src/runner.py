@@ -1,22 +1,26 @@
 from datetime import date, timedelta
 import random
 from typing import List
+import numpy as np
 
 from enums.workout import Workout
 from enums.terrain import Terrain
+from race_calendar import RaceCalendar  # Assuming RaceCalendar is defined in race_calendar.py
 
 class Runner:
     def __init__(self, name: str, birthday: date = None, age: int = None):
         self.name = name
+        self.start = date.today()
+        self.today = date.today()
         if birthday:
             self.birthday = birthday
         elif age:
-            self.birthday = date.today() - timedelta(days=age*365)
+            self.birthday = self.today - timedelta(days=age*365)
         else:
             # Default is 21 years old
-            self.birthday = date.today() - timedelta(days=21*365)
-        self.daily_training_load = []
-        self.next_race = None
+            self.birthday = self.today - timedelta(days=21*365)
+        self.daily_training_load = [0]
+        self.race_calendar = RaceCalendar(self.today.year)
 
     @property
     def age(self):
@@ -34,19 +38,28 @@ class Runner:
     @property
     def training_load_ratio(self):
         if self.chronic_training_load == 0:
-            return float('inf')
+            return 1 # If we don't have enough data to compute the ratio, assume a base value of 1
         return self.acute_training_load / self.chronic_training_load
+    
+    # Advance to the next day
+    def sleep(self):
+        self.today += timedelta(days=1)
+        self.daily_training_load.append(0)
 
-    # Add a new day's worth of training load (assume one activity per day for now)
+        # Check if it's January 1 of a new year
+        if self.today.month == 1 and self.today.day == 1:
+            self.race_calendar.reset(self.today)
+            print(f"Happy New Year! It's time to register for races for {self.today.year}.")
+
+        return self
+
+    # Add training load to the current day
     def add_training_load(self, activity = None):
-        if activity is None:
-            # Rest day
-            self.daily_training_load.append(0)
-            return
-
-        rpe = self.estimate_rpe(activity)
-        training_load = activity.duration * rpe
-        self.daily_training_load.append(int(training_load))
+        if activity:
+            rpe = self.estimate_rpe(activity)
+            training_load = activity.duration * rpe
+            self.daily_training_load[-1] += int(training_load)
+        return self
 
     # Did an injury occur today?
     def check_for_injury(self):
@@ -62,12 +75,12 @@ class Runner:
             return True
         return False
 
-    def set_next_race(self, race_id: int):
-        self.next_race = race_id
-
-    def _weighted_sum(self, loads: List[float], days: int):
-        weights = [1/(i+1) for i in range(days)]
-        weighted_loads = [load * weight for load, weight in zip(loads, weights)]
+    # Produce a weighted sum
+    def _weighted_sum(self, loads: List[float], days: int, decay: float = 0.2):
+        weights = np.exp(-decay * np.arange(days))
+        normalized_weights = weights / weights.sum()
+        normalized_weights = np.flip(normalized_weights)
+        weighted_loads = [load * weight for load, weight in zip(loads, normalized_weights.tolist())]
         return sum(weighted_loads)
 
     def estimate_rpe(self, activity):
@@ -99,4 +112,3 @@ class Runner:
 
         adjusted_rpe = base_rpe + rest_adjustment + load_adjustment
         return max(1, min(adjusted_rpe, 10)) # Clamp between 1 and 10
-

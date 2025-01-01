@@ -18,7 +18,7 @@ def simulate(max_activities=100):
         course_type = random.choice(list(Terrain))
 
         activity = Activity(pace=pace, distance=distance, workout_type=workout_type, course_type=course_type)
-        runner.add_training_load(activity)
+        runner.add_training_load(activity).sleep()
 
         print(f"Activity {activities}: Acute Load={int(runner.acute_training_load)}, Chronic Load={int(runner.chronic_training_load)}, Load Ratio={runner.training_load_ratio}, Duration={int(activity.duration)} min, Workout={activity.workout_type.value}, Terrain={activity.course_type.value}")
 
