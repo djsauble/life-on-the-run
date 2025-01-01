@@ -76,7 +76,7 @@ class Runner:
         return False
 
     # Produce a weighted sum
-    def _weighted_sum(self, loads: List[float], days: int, decay: float = 0.07):
+    def _weighted_sum(self, loads: List[float], days: int, decay: float = 0.2):
         weights = np.exp(-decay * np.arange(days))
         normalized_weights = weights / weights.sum()
         normalized_weights = np.flip(normalized_weights)

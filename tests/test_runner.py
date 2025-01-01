@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from datetime import date, timedelta
 from enums.terrain import Terrain
 from enums.workout import Workout
@@ -48,20 +49,28 @@ def test_acute_training_load():
     activities = generate_mock_activities()
     for activity in activities:
         runner.add_training_load(activity).sleep()
-    acute_training_load = 0
-    for i, load in enumerate(runner.daily_training_load[-7:]):
-        acute_training_load += load * (1 / (7 - i))
-    assert math.isclose(runner.acute_training_load, acute_training_load)
+
+    weights = np.exp(-0.2 * np.arange(7))
+    normalized_weights = weights / weights.sum()
+    normalized_weights = np.flip(normalized_weights)
+    last_seven_days = np.array(runner.daily_training_load[-7:])
+    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+
+    assert math.isclose(runner.acute_training_load, weighted_load)
 
 def test_chronic_training_load():
     runner = Runner(name="John")
     activities = generate_mock_activities()
     for activity in activities:
         runner.add_training_load(activity).sleep()
-    chronic_training_load = 0
-    for i, load in enumerate(runner.daily_training_load[-28:]):
-        chronic_training_load += load * (1 / (28 - i))
-    assert math.isclose(runner.chronic_training_load, chronic_training_load)
+
+    weights = np.exp(-0.2 * np.arange(28))
+    normalized_weights = weights / weights.sum()
+    normalized_weights = np.flip(normalized_weights)
+    last_seven_days = np.array(runner.daily_training_load[-28:])
+    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+
+    assert math.isclose(runner.chronic_training_load, weighted_load)
 
 def test_training_load_ratio():
     runner = Runner(name="John")
