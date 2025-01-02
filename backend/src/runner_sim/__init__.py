@@ -7,4 +7,6 @@ from .enums.competition import Competition as CompetitionTypes
 from .enums.terrain import Terrain as TerrainTypes
 from .enums.workout import Workout as WorkoutTypes
 
-__all__ = ['Activity', 'RaceCalendar', 'Race', 'Runner', 'CompetitionTypes', 'TerrainTypes', 'WorkoutTypes']
+from .singleton import Singleton
+
+__all__ = ['Activity', 'RaceCalendar', 'Race', 'Runner', 'CompetitionTypes', 'TerrainTypes', 'WorkoutTypes', 'Singleton']
