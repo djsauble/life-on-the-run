@@ -7,6 +7,8 @@ Manage the career of a cross-country runner
 Tested with Python 3.12.7
 
 ```
+# Install dependencies for the simulator
+cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -16,8 +18,8 @@ pip install -r requirements.txt
 
 Complete 1000 activities at random until an injury occurs:
 
-`python src/simulate.py`
+`python backend/src/simulate.py`
 
 Manually interact with the simulator using a CLI:
 
-`python src/cli.py`
+`python backend/src/cli.py`
