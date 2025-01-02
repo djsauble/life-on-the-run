@@ -20,9 +20,15 @@ const SimulatorInterface = () => {
         // Import your simulator module
         await pyodideInstance.loadPackage(['micropip', './simulator/runner_sim-0.1.0-py3-none-any.whl']);
         await pyodideInstance.runPythonAsync(`
-          import micropip
+import micropip
 
-          await micropip.install('scipy==1.14.1', 'numpy==2.2.1')
+await micropip.install('scipy==1.14.1', 'numpy==2.2.1')
+
+from runner_sim import Runner
+
+# Initialize a runner and store it in the global scope
+runner = Runner(name="John", age=25)
+globals()["runner"] = runner
         `);
         
         setPyodide(pyodideInstance);
@@ -46,24 +52,25 @@ const SimulatorInterface = () => {
     try {
       setLoading(true);
       const result = await pyodide.runPythonAsync(`
-        import random
+import random
 
-        from runner_sim import Runner, Activity, WorkoutTypes, TerrainTypes
+from runner_sim import Activity, WorkoutTypes, TerrainTypes
 
-        # Initialize a runner
-        runner = Runner(name="John", age=25)
+# Retrieve the runner from the global scope
+runner = globals()["runner"]
+current_day = len(runner.daily_training_load)
 
-        # Generate a random activity
-        pace = random.uniform(6, 12)  # Pace in min/mile
-        distance = random.uniform(3, 20)   # Distance in miles
-        workout_type = random.choice(list(WorkoutTypes))
-        course_type = random.choice(list(TerrainTypes))
-        activity = Activity(pace=pace, distance=distance, workout_type=workout_type, course_type=course_type)
+# Generate a random activity
+pace = random.uniform(6, 12)  # Pace in min/mile
+distance = random.uniform(3, 20)   # Distance in miles
+workout_type = random.choice(list(WorkoutTypes))
+course_type = random.choice(list(TerrainTypes))
+activity = Activity(pace=pace, distance=distance, workout_type=workout_type, course_type=course_type)
 
-        # Calculate the runner's new training load
-        runner.add_training_load(activity).sleep()
+# Calculate the runner's new training load
+runner.add_training_load(activity).sleep()
 
-        f"{runner.name}'s acute load: {runner.acute_training_load}"
+f"Day {current_day}: {runner.name}'s acute load: {runner.acute_training_load}"
       `);
       setResult(result);
     } catch (err) {
