@@ -47,6 +47,7 @@ jobs:
       
       # Frontend build setup
       - name: Set up Node
+        working-directory: ./frontend
         uses: actions/setup-node@v4
         with:
           node-version: 22
