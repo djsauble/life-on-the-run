@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from enums.terrain import Terrain
 from enums.workout import Workout
 from runner import Runner
+from constants import TRAINING_DECAY
 
 class MockActivity:
     def __init__(self, duration, workout_type, course_type):
@@ -50,7 +51,7 @@ def test_acute_training_load():
     for activity in activities:
         runner.add_training_load(activity).sleep()
 
-    weights = np.exp(-0.2 * np.arange(7))
+    weights = np.exp(-TRAINING_DECAY * np.arange(7))
     normalized_weights = weights / weights.sum()
     normalized_weights = np.flip(normalized_weights)
     last_seven_days = np.array(runner.daily_training_load[-7:])
@@ -64,7 +65,7 @@ def test_chronic_training_load():
     for activity in activities:
         runner.add_training_load(activity).sleep()
 
-    weights = np.exp(-0.2 * np.arange(28))
+    weights = np.exp(-TRAINING_DECAY * np.arange(28))
     normalized_weights = weights / weights.sum()
     normalized_weights = np.flip(normalized_weights)
     last_seven_days = np.array(runner.daily_training_load[-28:])
@@ -90,16 +91,16 @@ def test_check_for_injury():
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28)]
     for activity in activities:
         runner.add_training_load(activity).sleep()
-    injuries = [runner.check_for_injury() for _ in range(365)].count(True)
-    assert injuries > 0  # Should be at least one injury in a year
+    injuries = [runner.check_for_injury() for _ in range(90)].count(True)
+    assert injuries > 0  # Should be at least one injury in a three-month period
 
     # Set a low training load ratio
     runner = Runner(name="John")
     activities = [MockActivity(2 ** i, Workout.RACE, Terrain.FLAT) for i in range(28, 0, -1)]
     for activity in activities:
         runner.add_training_load(activity).sleep()
-    injuries = [runner.check_for_injury() for _ in range(365)].count(True)
-    assert injuries == 0  # Should be zero injuries in a year
+    injuries = [runner.check_for_injury() for _ in range(90)].count(True)
+    assert injuries == 0  # Should be zero injuries in a three-month period
 
 def test_sleep_method():
     runner = Runner(name="John")
