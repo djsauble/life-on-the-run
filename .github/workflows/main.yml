@@ -43,7 +43,7 @@ jobs:
       
       - name: Copy wheel to public directory
         run: |
-          cp dist/*.whl ../frontend/public/simulator/
+          cp ./backend/dist/*.whl ./frontend/public/simulator/
       
       # Frontend build setup
       - name: Set up Node
