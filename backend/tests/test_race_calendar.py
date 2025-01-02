@@ -1,9 +1,10 @@
 import pytest
 from datetime import date
-from race_calendar import RaceCalendar
-from enums.terrain import Terrain
-from enums.competition import Competition
-from race import Race
+
+from runner_sim.race_calendar import RaceCalendar
+from runner_sim.enums.terrain import Terrain
+from runner_sim.enums.competition import Competition
+from runner_sim.race import Race
 
 @pytest.fixture
 def race_calendar():

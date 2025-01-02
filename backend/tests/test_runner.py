@@ -1,10 +1,11 @@
 import math
 import numpy as np
 from datetime import date, timedelta
-from enums.terrain import Terrain
-from enums.workout import Workout
-from runner import Runner
-from constants import TRAINING_DECAY
+
+from runner_sim.enums.terrain import Terrain
+from runner_sim.enums.workout import Workout
+from runner_sim.runner import Runner
+from runner_sim.constants import TRAINING_DECAY
 
 class MockActivity:
     def __init__(self, duration, workout_type, course_type):

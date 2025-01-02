@@ -1,8 +1,9 @@
 import pytest
 from datetime import datetime
-from race import Race
-from enums.terrain import Terrain
-from enums.competition import Competition
+
+from runner_sim.race import Race
+from runner_sim.enums.terrain import Terrain
+from runner_sim.enums.competition import Competition
 
 class MockRunner:
     def __init__(self, chronic_training_load):

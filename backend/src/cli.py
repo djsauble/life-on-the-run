@@ -1,9 +1,9 @@
 import random
-from datetime import date
-from enums.workout import Workout
-from enums.terrain import Terrain
-from runner import Runner
-from activity import Activity
+
+from runner_sim.enums.workout import Workout
+from runner_sim.enums.terrain import Terrain
+from runner_sim.runner import Runner
+from runner_sim.activity import Activity
 
 def main():
     # Initialize runner

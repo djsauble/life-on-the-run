@@ -1,7 +1,8 @@
 import pytest
-from activity import Activity
-from enums.workout import Workout
-from enums.terrain import Terrain
+
+from runner_sim.activity import Activity
+from runner_sim.enums.workout import Workout
+from runner_sim.enums.terrain import Terrain
 
 def test_activity_with_duration():
     activity = Activity(duration=60)
