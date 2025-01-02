@@ -1,10 +1,10 @@
 import random
 import sys
-from datetime import timedelta
-from runner import Runner
-from activity import Activity
-from enums.workout import Workout
-from enums.terrain import Terrain
+
+from runner_sim.runner import Runner
+from runner_sim.activity import Activity
+from runner_sim.enums.workout import Workout
+from runner_sim.enums.terrain import Terrain
 
 def simulate(max_activities=100):
     runner = Runner(name="John Doe", age=25)

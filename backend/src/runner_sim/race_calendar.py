@@ -1,7 +1,7 @@
 from datetime import date
-from race import Race
-from enums.terrain import Terrain
-from enums.competition import Competition
+from .race import Race
+from .enums.terrain import Terrain
+from .enums.competition import Competition
 
 class RaceCalendar:
     def __init__(self, year):

@@ -1,7 +1,8 @@
-from enums.terrain import Terrain
-from enums.competition import Competition
 import random
 from scipy.stats import norm
+
+from .enums.terrain import Terrain
+from .enums.competition import Competition
 
 class Race:
     COMPETITION_PARAMS = {

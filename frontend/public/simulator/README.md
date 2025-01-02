@@ -1,0 +1,1 @@
+See the main README for instructions on how to build the simulator and copy it here.

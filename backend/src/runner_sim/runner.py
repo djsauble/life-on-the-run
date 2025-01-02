@@ -3,10 +3,10 @@ import random
 from typing import List
 import numpy as np
 
-from enums.workout import Workout
-from enums.terrain import Terrain
-from race_calendar import RaceCalendar  # Assuming RaceCalendar is defined in race_calendar.py
-from constants import TRAINING_DECAY
+from .enums.workout import Workout
+from .enums.terrain import Terrain
+from .race_calendar import RaceCalendar  # Assuming RaceCalendar is defined in race_calendar.py
+from .constants import TRAINING_DECAY
 
 class Runner:
     def __init__(self, name: str, birthday: date = None, age: int = None):

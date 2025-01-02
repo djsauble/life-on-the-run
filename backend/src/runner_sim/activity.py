@@ -1,5 +1,5 @@
-from enums.workout import Workout
-from enums.terrain import Terrain
+from .enums.workout import Workout
+from .enums.terrain import Terrain
 
 class Activity:
     def __init__(self, duration=None, pace=None, distance=None, workout_type=Workout.RECOVERY, course_type=Terrain.FLAT):
