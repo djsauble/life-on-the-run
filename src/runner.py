@@ -6,6 +6,7 @@ import numpy as np
 from enums.workout import Workout
 from enums.terrain import Terrain
 from race_calendar import RaceCalendar  # Assuming RaceCalendar is defined in race_calendar.py
+from constants import TRAINING_DECAY
 
 class Runner:
     def __init__(self, name: str, birthday: date = None, age: int = None):
@@ -68,7 +69,7 @@ class Runner:
         base_injury_rate = 1 / 365
 
         # Adjust injury rate based on training load ratio
-        adjusted_injury_rate = base_injury_rate * self.training_load_ratio
+        adjusted_injury_rate = base_injury_rate * (self.training_load_ratio ** 3)
 
         # Determine if injury occurs
         if random.random() < adjusted_injury_rate:
@@ -76,7 +77,7 @@ class Runner:
         return False
 
     # Produce a weighted sum
-    def _weighted_sum(self, loads: List[float], days: int, decay: float = 0.2):
+    def _weighted_sum(self, loads: List[float], days: int, decay: float = TRAINING_DECAY):
         weights = np.exp(-decay * np.arange(days))
         normalized_weights = weights / weights.sum()
         normalized_weights = np.flip(normalized_weights)
