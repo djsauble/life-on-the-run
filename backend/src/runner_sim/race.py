@@ -1,8 +1,8 @@
 import random
-from scipy.stats import norm
 
 from .enums.terrain import Terrain
 from .enums.competition import Competition
+from .helpers.norm_cdf import norm_cdf
 
 class Race:
     COMPETITION_PARAMS = {
@@ -28,7 +28,7 @@ class Race:
         top_competitor_score = random.gauss(self.competition["mean"], self.competition["stddev"])
 
         # Determine placement based on performance score and competition level
-        percentile = norm.cdf(your_performance_score, self.competition["mean"], self.competition["stddev"])
+        percentile = norm_cdf(your_performance_score, self.competition["mean"], self.competition["stddev"])
         if your_performance_score > top_competitor_score:
             percentile = 1.00
             placement = f"You won! Enjoy your ${self.prizes[0]} of prize money!"
@@ -45,5 +45,5 @@ class Race:
         your_estimated_score = random.gauss(runner.chronic_training_load, 100)
 
         # Calculate odds of winning
-        odds_of_winning = norm.cdf(your_estimated_score, self.competition["mean"], self.competition["stddev"])
+        odds_of_winning = norm_cdf(your_estimated_score, self.competition["mean"], self.competition["stddev"])
         return "{:.1f}%".format(odds_of_winning * 100)

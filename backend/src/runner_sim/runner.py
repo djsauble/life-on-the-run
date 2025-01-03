@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 import random
 from typing import List
-import numpy as np
+import math
 
 from .enums.workout import Workout
 from .enums.terrain import Terrain
@@ -78,10 +78,15 @@ class Runner:
 
     # Produce a weighted sum
     def _weighted_sum(self, loads: List[float], days: int, decay: float = TRAINING_DECAY):
-        weights = np.exp(-decay * np.arange(days))
-        normalized_weights = weights / weights.sum()
-        normalized_weights = np.flip(normalized_weights)
-        weighted_loads = [load * weight for load, weight in zip(loads, normalized_weights.tolist())]
+        # Generate weights using the decay factor
+        weights = [math.exp(-decay * i) for i in range(days)]
+        
+        # Normalize the weights
+        weight_sum = sum(weights)
+        normalized_weights = [w / weight_sum for w in reversed(weights)]
+        
+        # Calculate the weighted sum of the loads
+        weighted_loads = [load * weight for load, weight in zip(loads, normalized_weights)]
         return sum(weighted_loads)
 
     def estimate_rpe(self, activity):
