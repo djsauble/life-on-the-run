@@ -18,10 +18,8 @@ const SimulatorInterface = () => {
         });
         
         // Import your simulator module
-        await pyodideInstance.loadPackage(['micropip', './simulator/runner_sim-0.1.0-py3-none-any.whl']);
+        await pyodideInstance.loadPackage(['./simulator/runner_sim-0.1.0-py3-none-any.whl']);
         await pyodideInstance.runPythonAsync(`
-import micropip
-await micropip.install('scipy==1.14.1', 'numpy==2.2.1')
 from runner_sim import Singleton
 sim = Singleton()
 sim.initialize_runner()

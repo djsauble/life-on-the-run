@@ -1,6 +1,6 @@
 import math
-import numpy as np
 from datetime import date, timedelta
+import math
 
 from runner_sim.enums.terrain import Terrain
 from runner_sim.enums.workout import Workout
@@ -52,12 +52,18 @@ def test_acute_training_load():
     for activity in activities:
         runner.add_training_load(activity).sleep()
 
-    weights = np.exp(-TRAINING_DECAY * np.arange(7))
-    normalized_weights = weights / weights.sum()
-    normalized_weights = np.flip(normalized_weights)
-    last_seven_days = np.array(runner.daily_training_load[-7:])
-    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+    # Generate weights using the decay factor
+    weights = [math.exp(-TRAINING_DECAY * i) for i in range(7)]
+    
+    # Normalize the weights
+    weight_sum = sum(weights)
+    normalized_weights = [w / weight_sum for w in reversed(weights)]
+    
+    # Calculate the weighted load
+    last_seven_days = runner.daily_training_load[-7:]
+    weighted_load = sum(load * weight for load, weight in zip(last_seven_days, normalized_weights))
 
+    # Assert the calculated value matches the acute training load
     assert math.isclose(runner.acute_training_load, weighted_load)
 
 def test_chronic_training_load():
@@ -66,12 +72,18 @@ def test_chronic_training_load():
     for activity in activities:
         runner.add_training_load(activity).sleep()
 
-    weights = np.exp(-TRAINING_DECAY * np.arange(28))
-    normalized_weights = weights / weights.sum()
-    normalized_weights = np.flip(normalized_weights)
-    last_seven_days = np.array(runner.daily_training_load[-28:])
-    weighted_load = np.dot(normalized_weights, last_seven_days).sum()
+    # Generate weights using the decay factor
+    weights = [math.exp(-TRAINING_DECAY * i) for i in range(28)]
+    
+    # Normalize the weights
+    weight_sum = sum(weights)
+    normalized_weights = [w / weight_sum for w in reversed(weights)]
+    
+    # Calculate the weighted load
+    last_twenty_eight_days = runner.daily_training_load[-28:]
+    weighted_load = sum(load * weight for load, weight in zip(last_twenty_eight_days, normalized_weights))
 
+    # Assert the calculated value matches the chronic training load
     assert math.isclose(runner.chronic_training_load, weighted_load)
 
 def test_training_load_ratio():
