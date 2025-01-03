@@ -1,0 +1,83 @@
+name: Deploy Vite + React site with Python Wheel
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      # Python setup and wheel building
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install Python build dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      
+      - name: Build Python wheel
+        working-directory: ./backend
+        run: python -m build
+      
+      - name: Copy wheel to public directory
+        run: |
+          cp ./backend/dist/*.whl ./frontend/public/simulator/
+      
+      # Frontend build setup
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # Deal with a bug with optional packages
+      - name: Clean up dependencies
+        working-directory: ./frontend
+        run: |
+          rm -rf node_modules package-lock.json
+
+      # Normally we'd do npm ci but we can't due to the above step
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm i
+      
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './frontend/dist'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
