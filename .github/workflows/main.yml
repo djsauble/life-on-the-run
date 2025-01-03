@@ -58,10 +58,11 @@ jobs:
         working-directory: ./frontend
         run: |
           rm -rf node_modules package-lock.json
-      
+
+      # Normally we'd do npm ci but we can't due to the above step
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm i
       
       - name: Build frontend
         working-directory: ./frontend
