@@ -46,3 +46,13 @@ npm run dev
 ```
 
 Open http://localhost:5173 in your browser
+
+## Develop
+
+To add additional UI components from ShadCDN, run the following command:
+
+```
+npx shadcn@latest add <component>
+```
+
+This will instantiate the component inside the `frontend/src/components/ui/` directory.
